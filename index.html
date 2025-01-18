@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tap Challenge Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(to bottom, #001f4d, #004080);
+            color: white;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #tap-button {
+            font-size: 24px;
+            padding: 20px 40px;
+            background-color: #f0e68c;
+            color: black;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        #tap-button:hover {
+            transform: scale(1.1);
+        }
+
+        #counter {
+            margin-top: 20px;
+            font-size: 24px;
+        }
+
+        #popup-button {
+            position: absolute;
+            padding: 10px 20px;
+            background-color: #ff4500;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+        }
+
+        #popup-message {
+            margin-top: 20px;
+            font-size: 18px;
+            display: none;
+        }
+
+        #secret-code {
+            margin-top: 30px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #32cd32;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <button id="tap-button">Tap Me!</button>
+    <div id="counter">0 / 2500</div>
+    <div id="popup-message"></div>
+    <div id="secret-code">Secret Code: JUPITER123</div>
+    <button id="popup-button">Tap to Resume</button>
+
+    <script>
+        const tapButton = document.getElementById('tap-button');
+        const counter = document.getElementById('counter');
+        const popupButton = document.getElementById('popup-button');
+        const popupMessage = document.getElementById('popup-message');
+        const secretCode = document.getElementById('secret-code');
+
+        let tapCount = 0;
+        let lastTapTime = Date.now();
+        let isPaused = false;
+
+        // Function to update the counter display
+        const updateCounter = () => {
+            counter.textContent = `${tapCount} / 2500`;
+        };
+
+        // Function to show the popup
+        const showPopup = (message) => {
+            popupMessage.textContent = message;
+            popupMessage.style.display = 'block';
+            popupButton.style.display = 'block';
+            popupButton.style.top = `${Math.random() * 80 + 10}%`;
+            popupButton.style.left = `${Math.random() * 80 + 10}%`;
+            isPaused = true;
+        };
+
+        // Event listener for the tap button
+        tapButton.addEventListener('click', () => {
+            if (isPaused) return; // Prevent counting when paused
+
+            const now = Date.now();
+            const tapSpeed = now - lastTapTime;
+            lastTapTime = now;
+
+            // Check for suspiciously fast tapping
+            if (tapSpeed < 100) {
+                showPopup("You're tapping too fast! Slow down.");
+                return;
+            }
+
+            tapCount++;
+            updateCounter();
+
+            // Check for milestone popup
+            if (tapCount % 500 === 0 && tapCount < 2500) {
+                showPopup("You're doing great! Keep going!");
+                return;
+            }
+
+            // Check for win condition
+            if (tapCount >= 2500) {
+                tapButton.style.display = 'none';
+                secretCode.style.display = 'block';
+            }
+        });
+
+        // Event listener for the popup button
+        popupButton.addEventListener('click', () => {
+            popupMessage.style.display = 'none';
+            popupButton.style.display = 'none';
+            isPaused = false;
+        });
+
+        updateCounter();
+    </script>
+</body>
+</html>
