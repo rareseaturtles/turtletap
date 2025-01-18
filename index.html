@@ -91,6 +91,12 @@
         #telegram-link:hover {
             text-decoration: underline;
         }
+
+        #countdown-display {
+            margin-top: 20px;
+            font-size: 18px;
+            color: yellow;
+        }
     </style>
 </head>
 <body>
@@ -101,9 +107,9 @@
     <div id="popup-message"></div>
     <div id="secret-code">Secret Code: JUPITER123</div>
     <button id="popup-button"></button>
+    <div id="countdown-display"></div>
 
     <a id="telegram-link" href="https://t.me/+FsJKNuEXxRRmZGRh" target="_blank">Join us on Telegram!</a>
-    <img id="turtle-image" src="https://i.ibb.co/7NHKFLR/Screenshot-20250117-003541-Messenger.png" alt="Welcoming Turtle">
 
     <script>
         const tapButton = document.getElementById('tap-button');
@@ -111,27 +117,18 @@
         const popupButton = document.getElementById('popup-button');
         const popupMessage = document.getElementById('popup-message');
         const secretCode = document.getElementById('secret-code');
+        const countdownDisplay = document.getElementById('countdown-display');
 
         let tapCount = 0;
-        let lastTapTime = Date.now();
         let isPaused = false;
 
-        // Deployment timestamp (set to the exact deployment time in UTC)
-        const deploymentTime = new Date("2025-01-18T12:00:00Z"); // Adjust as needed
-        const delayDuration = 60 * 60 * 1000; // 1 hour in milliseconds
-        const countdownDisplay = document.createElement('div');
+        // Target time (1/19/2025 00:00:00 Indianapolis time, Eastern Standard Time)
+        const targetTime = new Date("2025-01-19T05:00:00Z"); // Convert to UTC
 
-        // Add countdown display to the page
-        countdownDisplay.style.marginTop = "20px";
-        countdownDisplay.style.fontSize = "18px";
-        countdownDisplay.style.color = "yellow";
-        document.body.insertBefore(countdownDisplay, tapButton.nextSibling);
-
-        // Function to calculate remaining time
+        // Function to calculate and update the countdown
         const updateCountdown = () => {
             const now = new Date();
-            const timeElapsed = now - deploymentTime;
-            const timeRemaining = delayDuration - timeElapsed;
+            const timeRemaining = targetTime - now;
 
             if (timeRemaining <= 0) {
                 tapButton.disabled = false;
@@ -140,9 +137,10 @@
             } else {
                 tapButton.disabled = true;
                 tapButton.style.opacity = 0.5; // Semi-transparent
-                const minutes = Math.floor(timeRemaining / (1000 * 60));
+                const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
+                const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-                countdownDisplay.textContent = `Time remaining: ${minutes}m ${seconds}s`;
+                countdownDisplay.textContent = `Time remaining: ${hours}h ${minutes}m ${seconds}s`;
             }
         };
 
@@ -155,40 +153,13 @@
             counter.textContent = `${tapCount} / 2500`;
         };
 
-        // Function to show the popup
-        const showPopup = (message) => {
-            popupMessage.textContent = message;
-            popupMessage.style.display = 'block';
-            popupButton.style.display = 'block';
-            popupButton.style.top = `${Math.random() * 80 + 10}%`;
-            popupButton.style.left = `${Math.random() * 80 + 10}%`;
-            isPaused = true;
-        };
-
         // Event listener for the tap button
         tapButton.addEventListener('click', () => {
             if (isPaused) return; // Prevent counting when paused
 
-            const now = Date.now();
-            const tapSpeed = now - lastTapTime;
-            lastTapTime = now;
-
-            // Check for suspiciously fast tapping
-            if (tapSpeed < 100) {
-                showPopup("You're tapping too fast! Slow down.");
-                return;
-            }
-
             tapCount++;
             updateCounter();
 
-            // Check for milestone popup
-            if (tapCount % 500 === 0 && tapCount < 2500) {
-                showPopup("You're doing great! Keep going!");
-                return;
-            }
-
-            // Check for win condition
             if (tapCount >= 2500) {
                 tapButton.style.display = 'none';
                 secretCode.style.display = 'block';
