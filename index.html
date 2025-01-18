@@ -27,15 +27,15 @@
         }
 
         #tap-button {
-            font-size: 24px;
-            padding: 20px 40px;
-            background: url('https://i.ibb.co/gV63YjH/Background.jpg') no-repeat center center;
+            width: 150px;
+            height: 150px;
+            background: url('https://i.ibb.co/NnPgLsJ/Moons.png') no-repeat center center;
             background-size: cover;
-            color: black;
             border: none;
-            border-radius: 10px;
+            border-radius: 50%;
             cursor: pointer;
             transition: transform 0.2s;
+            opacity: 0.5; /* Initially disabled */
         }
 
         #tap-button:hover {
@@ -71,16 +71,38 @@
             color: #32cd32;
             display: none;
         }
+
+        #turtle-image {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            width: 150px;
+        }
+
+        #telegram-link {
+            margin-top: 30px;
+            font-size: 18px;
+            text-decoration: none;
+            color: #00bfff;
+            font-weight: bold;
+        }
+
+        #telegram-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
 
     <h1>Turtle Tap</h1>
-    <button id="tap-button">Tap Me!</button>
+    <button id="tap-button" disabled></button>
     <div id="counter">0 / 2500</div>
     <div id="popup-message"></div>
     <div id="secret-code">Secret Code: JUPITER123</div>
     <button id="popup-button">Tap to Resume</button>
+
+    <a id="telegram-link" href="https://t.me/+FsJKNuEXxRRmZGRh" target="_blank">Join us on Telegram!</a>
+    <img id="turtle-image" src="https://i.ibb.co/7NHKFLR/Screenshot-20250117-003541-Messenger.png" alt="Welcoming Turtle">
 
     <script>
         const tapButton = document.getElementById('tap-button');
@@ -92,6 +114,40 @@
         let tapCount = 0;
         let lastTapTime = Date.now();
         let isPaused = false;
+
+        // Deployment timestamp (set to the exact deployment time in UTC)
+        const deploymentTime = new Date("2025-01-18T12:00:00Z"); // Adjust as needed
+        const delayDuration = 60 * 60 * 1000; // 1 hour in milliseconds
+        const countdownDisplay = document.createElement('div');
+
+        // Add countdown display to the page
+        countdownDisplay.style.marginTop = "20px";
+        countdownDisplay.style.fontSize = "18px";
+        countdownDisplay.style.color = "yellow";
+        document.body.insertBefore(countdownDisplay, tapButton.nextSibling);
+
+        // Function to calculate remaining time
+        const updateCountdown = () => {
+            const now = new Date();
+            const timeElapsed = now - deploymentTime;
+            const timeRemaining = delayDuration - timeElapsed;
+
+            if (timeRemaining <= 0) {
+                tapButton.disabled = false;
+                tapButton.style.opacity = 1; // Fully visible
+                countdownDisplay.textContent = "Tap button is now active!";
+            } else {
+                tapButton.disabled = true;
+                tapButton.style.opacity = 0.5; // Semi-transparent
+                const minutes = Math.floor(timeRemaining / (1000 * 60));
+                const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+                countdownDisplay.textContent = `Time remaining: ${minutes}m ${seconds}s`;
+            }
+        };
+
+        // Run countdown on page load and periodically
+        updateCountdown();
+        setInterval(updateCountdown, 1000); // Update every second
 
         // Function to update the counter display
         const updateCounter = () => {
