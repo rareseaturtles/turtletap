@@ -47,18 +47,6 @@
             font-size: 24px;
         }
 
-        #popup-button {
-            position: absolute;
-            width: 150px;
-            height: 150px;
-            background: url('https://i.ibb.co/b1mBHmW/Screenshot-20250117-003541-Messenger.png') no-repeat center center;
-            background-size: cover;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            display: none;
-        }
-
         #popup-message {
             margin-top: 20px;
             font-size: 18px;
@@ -73,11 +61,15 @@
             display: none;
         }
 
-        #turtle-image {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
+        #resume-button {
             width: 150px;
+            height: 150px;
+            background: url('https://i.ibb.co/b1mBHmW/Screenshot-20250117-003541-Messenger.png') no-repeat center center;
+            background-size: cover;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
         }
 
         #telegram-link {
@@ -91,45 +83,48 @@
         #telegram-link:hover {
             text-decoration: underline;
         }
-
-        #countdown-display {
-            margin-top: 20px;
-            font-size: 18px;
-            color: yellow;
-        }
     </style>
 </head>
 <body>
 
     <h1>Turtle Tap</h1>
-    <button id="tap-button" disabled></button>
+    <button id="tap-button"></button>
     <div id="counter">0 / 2500</div>
     <div id="popup-message"></div>
-    <div id="secret-code">Secret Code: blank</div>
-    <button id="popup-button"></button>
-    <div id="countdown-display"></div>
+    <div id="secret-code">Secret Code: </div>
 
-    <!-- Updated Telegram link -->
+    <!-- Resume Button -->
+    <button id="resume-button"></button>
+
+    <!-- Telegram link -->
     <a id="telegram-link" href="https://t.me/+O8YUYgrRhF0xZDNh" target="_blank">Join us on Telegram!</a>
 
     <script>
         const tapButton = document.getElementById('tap-button');
         const counter = document.getElementById('counter');
-        const popupButton = document.getElementById('popup-button');
-        const popupMessage = document.getElementById('popup-message');
         const secretCode = document.getElementById('secret-code');
-        const countdownDisplay = document.getElementById('countdown-display');
+        const resumeButton = document.getElementById('resume-button');
+        const popupMessage = document.getElementById('popup-message');
 
         let tapCount = 0;
-        let isPaused = false;
+        let lastTapTime = Date.now(); // Initialize last tap time correctly
+        const encryptedCode = "ZTh0V2d6MkpvVk5Z"; // Base64 encoded version of "e8tWgz2JoVNY"
+        let isPaused = false; // Track if the game is paused due to popup
 
-        // Target time (1/19/2025 00:00:00 Indianapolis time, Eastern Standard Time)
-        const targetTime = new Date("2025-01-19T05:00:00Z"); // Convert to UTC
+        // Indianapolis, Indiana target time (Jan 19, 2025, 00:00 EST)
+        const targetDateIndianapolis = new Date("2025-01-19T00:00:00-05:00"); // UTC-5
+        const countdownDisplay = document.createElement('div');
 
-        // Function to calculate and update the countdown
+        // Add countdown display to the page
+        countdownDisplay.style.marginTop = "20px";
+        countdownDisplay.style.fontSize = "18px";
+        countdownDisplay.style.color = "yellow";
+        document.body.insertBefore(countdownDisplay, tapButton.nextSibling);
+
+        // Function to calculate remaining time
         const updateCountdown = () => {
             const now = new Date();
-            const timeRemaining = targetTime - now;
+            const timeRemaining = targetDateIndianapolis - now; // Calculate remaining time until target time in Indianapolis time
 
             if (timeRemaining <= 0) {
                 tapButton.disabled = false;
@@ -138,10 +133,9 @@
             } else {
                 tapButton.disabled = true;
                 tapButton.style.opacity = 0.5; // Semi-transparent
-                const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
-                const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                const minutes = Math.floor(timeRemaining / (1000 * 60));
                 const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-                countdownDisplay.textContent = `Race begins in: ${hours}h ${minutes}m ${seconds}s`;
+                countdownDisplay.textContent = `Time remaining: ${minutes}m ${seconds}s`;
             }
         };
 
@@ -149,31 +143,67 @@
         updateCountdown();
         setInterval(updateCountdown, 1000); // Update every second
 
+        // Decode the secret code from Base64
+        const decodeSecretCode = (encodedCode) => atob(encodedCode);
+
         // Function to update the counter display
         const updateCounter = () => {
             counter.textContent = `${tapCount} / 2500`;
+        };
+
+        // Function to show the popup
+        const showPopup = (message) => {
+            popupMessage.textContent = message;
+            popupMessage.style.display = 'block';
+            resumeButton.style.display = 'block';
+            isPaused = true;
+        };
+
+        // Function to resume the game
+        const resumeGame = () => {
+            popupMessage.style.display = 'none';
+            resumeButton.style.display = 'none';
+            isPaused = false;
         };
 
         // Event listener for the tap button
         tapButton.addEventListener('click', () => {
             if (isPaused) return; // Prevent counting when paused
 
+            const now = Date.now();
+            const tapSpeed = now - lastTapTime;
+            lastTapTime = now;
+
+            // Check for suspiciously fast tapping (speed detection) - Set to 100ms
+            if (tapSpeed < 100) {  // 100ms threshold for fast tapping
+                showPopup("You're tapping too fast! Slow down.");
+                return;
+            }
+
             tapCount++;
             updateCounter();
 
+            // Show popup every 500 taps to encourage the user
+            if (tapCount % 500 === 0 && tapCount < 2500) {
+                showPopup("You're doing great! Keep going!");
+                return;
+            }
+
+            // Check for win condition (2500 taps)
             if (tapCount >= 2500) {
                 tapButton.style.display = 'none';
+                const decodedCode = decodeSecretCode(encryptedCode);
+                secretCode.textContent = `Secret Code: ${decodedCode}`;
                 secretCode.style.display = 'block';
             }
         });
 
-        // Event listener for the popup button
-        popupButton.addEventListener('click', () => {
-            popupMessage.style.display = 'none';
-            popupButton.style.display = 'none';
-            isPaused = false;
+        // Event listener for the resume button
+        resumeButton.addEventListener('click', () => {
+            resumeGame();
         });
 
+        // Initialize
         updateCounter();
     </script>
 </body>
