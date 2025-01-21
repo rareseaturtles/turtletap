@@ -26,7 +26,7 @@
             text-shadow: 2px 2px 5px black;
         }
 
-        #tap-button {
+        #tap-button, #resume-button {
             width: 150px;
             height: 150px;
             background-color: yellow;
@@ -37,7 +37,7 @@
             opacity: 0.5; /* Initially disabled */
         }
 
-        #tap-button:hover {
+        #tap-button:hover, #resume-button:hover {
             transform: scale(1.1);
         }
 
@@ -47,14 +47,9 @@
         }
 
         #popup-message {
-            position: absolute;
-            top: 20px;
-            left: 20px;
+            margin-top: 20px;
             font-size: 18px;
             display: none;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 5px;
         }
 
         #secret-code {
@@ -63,20 +58,6 @@
             font-weight: bold;
             color: #32cd32;
             display: none;
-        }
-
-        #resume-button {
-            width: 150px;
-            height: 150px;
-            background-color: lightblue;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            display: none;
-        }
-
-        #resume-button:hover {
-            transform: scale(1.1);
         }
 
         #telegram-link {
@@ -96,7 +77,7 @@
 
     <h1>Turtle Tap</h1>
     <button id="tap-button"></button>
-    <div id="counter">0 / 1,000,000</div>
+    <div id="counter">0 / 1000000</div>
     <div id="popup-message"></div>
     <div id="secret-code">Secret Code: </div>
 
@@ -115,7 +96,7 @@
 
         let tapCount = 0;
         let lastTapTime = Date.now(); // Initialize last tap time correctly
-        const encryptedCode = btoa("GvvtifP7tFbx"); // Encode the new secret code to Base64
+        const encryptedCode = "R3Z2dGlmUDd0RmJ4"; // Base64 encoded version of "GvvtifP7tFbx"
         let isPaused = false; // Track if the game is paused due to popup
 
         // Indianapolis, Indiana target time (Jan 19, 2025, 00:00 EST)
@@ -155,32 +136,15 @@
 
         // Function to update the counter display
         const updateCounter = () => {
-            counter.textContent = `${tapCount.toLocaleString()} / 1,000,000`;
+            counter.textContent = `${tapCount} / 1000000`;
         };
 
         // Function to show the popup
-        const showPopup = (message, position) => {
+        const showPopup = (message) => {
             popupMessage.textContent = message;
             popupMessage.style.display = 'block';
+            resumeButton.style.display = 'block';
             isPaused = true;
-
-            // Position the popup based on input
-            if (position === 'top-left') {
-                popupMessage.style.top = '20px';
-                popupMessage.style.left = '20px';
-            } else if (position === 'top-right') {
-                popupMessage.style.top = '20px';
-                popupMessage.style.right = '20px';
-                popupMessage.style.left = 'auto';
-            }
-
-            // Show the resume button for speed detection popups
-            if (message.includes("too fast")) {
-                resumeButton.style.display = 'block';
-                resumeButton.style.position = 'absolute';
-                resumeButton.style.top = '70px';
-                resumeButton.style.left = '20px';
-            }
         };
 
         // Function to resume the game
@@ -198,23 +162,23 @@
             const tapSpeed = now - lastTapTime;
             lastTapTime = now;
 
-            // Check for suspiciously fast tapping (speed detection) - Set to 40ms
-            if (tapSpeed < 40) {
-                showPopup("You're tapping too fast! Slow down.", 'top-left');
+            // Check for suspiciously fast tapping (speed detection) - Set to 100ms
+            if (tapSpeed < 100) {  // 100ms threshold for fast tapping
+                showPopup("You're tapping too fast! Slow down.");
                 return;
             }
 
             tapCount++;
             updateCounter();
 
-            // Show popup every 1,000 taps to encourage the user
-            if (tapCount % 1000 === 0 && tapCount < 1_000_000) {
-                showPopup("You're doing great! Keep going!", 'top-right');
+            // Show popup every 1000 taps to encourage the user
+            if (tapCount % 1000 === 0 && tapCount < 1000000) {
+                showPopup("You're doing great! Keep going!");
                 return;
             }
 
             // Check for win condition (1,000,000 taps)
-            if (tapCount >= 1_000_000) {
+            if (tapCount >= 1000000) {
                 tapButton.style.display = 'none';
                 const decodedCode = decodeSecretCode(encryptedCode);
                 secretCode.textContent = `Secret Code: ${decodedCode}`;
