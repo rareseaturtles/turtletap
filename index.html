@@ -77,6 +77,10 @@
             display: none;
         }
 
+        #resume-button:hover {
+            transform: scale(1.1);
+        }
+
         #telegram-link {
             margin-top: 30px;
             font-size: 18px;
@@ -117,7 +121,7 @@
         let isPaused = false; // Track if the game is paused due to popup
 
         // Indianapolis, Indiana target time (Jan 19, 2025, 00:00 EST)
-        const targetDateIndianapolis = new Date("2025-01-20T00:00:00-05:00"); // UTC-5
+        const targetDateIndianapolis = new Date("2025-01-19T00:00:00-05:00"); // UTC-5
         const countdownDisplay = document.createElement('div');
 
         // Add countdown display to the page
@@ -170,6 +174,14 @@
                 popupMessage.style.top = '20px';
                 popupMessage.style.right = '20px';
                 popupMessage.style.left = 'auto';
+            }
+
+            // Show the resume button for speed detection popups
+            if (message.includes("too fast")) {
+                resumeButton.style.display = 'block';
+                resumeButton.style.position = 'absolute';
+                resumeButton.style.top = '70px';
+                resumeButton.style.left = '20px';
             }
         };
 
