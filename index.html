@@ -35,7 +35,6 @@
             border-radius: 50%;
             cursor: pointer;
             transition: transform 0.2s;
-            opacity: 0.5; /* Initially disabled */
         }
 
         #tap-button:hover {
@@ -111,44 +110,12 @@
         const encryptedCode = "ZTh0V2d6MkpvVk5Z"; // Base64 encoded version of "e8tWgz2JoVNY"
         let isPaused = false; // Track if the game is paused due to popup
 
-        // Indianapolis, Indiana target time (Jan 19, 2025, 00:00 EST)
-        const targetDateIndianapolis = new Date("2025-01-19T00:00:00-05:00"); // UTC-5
-        const countdownDisplay = document.createElement('div');
-
-        // Add countdown display to the page
-        countdownDisplay.style.marginTop = "20px";
-        countdownDisplay.style.fontSize = "18px";
-        countdownDisplay.style.color = "yellow";
-        document.body.insertBefore(countdownDisplay, tapButton.nextSibling);
-
-        // Function to calculate remaining time
-        const updateCountdown = () => {
-            const now = new Date();
-            const timeRemaining = targetDateIndianapolis - now; // Calculate remaining time until target time in Indianapolis time
-
-            if (timeRemaining <= 0) {
-                tapButton.disabled = false;
-                tapButton.style.opacity = 1; // Fully visible
-                countdownDisplay.textContent = "Tap button is now active!";
-            } else {
-                tapButton.disabled = true;
-                tapButton.style.opacity = 0.5; // Semi-transparent
-                const minutes = Math.floor(timeRemaining / (1000 * 60));
-                const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-                countdownDisplay.textContent = Time remaining: ${minutes}m ${seconds}s;
-            }
-        };
-
-        // Run countdown on page load and periodically
-        updateCountdown();
-        setInterval(updateCountdown, 1000); // Update every second
-
         // Decode the secret code from Base64
         const decodeSecretCode = (encodedCode) => atob(encodedCode);
 
         // Function to update the counter display
         const updateCounter = () => {
-            counter.textContent = ${tapCount} / 2500;
+            counter.textContent = `${tapCount} / 2500`;
         };
 
         // Function to show the popup
@@ -193,7 +160,7 @@
             if (tapCount >= 2500) {
                 tapButton.style.display = 'none';
                 const decodedCode = decodeSecretCode(encryptedCode);
-                secretCode.textContent = Secret Code: ${decodedCode};
+                secretCode.textContent = `Secret Code: ${decodedCode}`;
                 secretCode.style.display = 'block';
             }
         });
