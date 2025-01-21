@@ -29,8 +29,7 @@
         #tap-button {
             width: 150px;
             height: 150px;
-            background: url('https://i.ibb.co/NnPgLsJ/Moons.png') no-repeat center center;
-            background-size: cover;
+            background-color: yellow;
             border: none;
             border-radius: 50%;
             cursor: pointer;
@@ -48,9 +47,14 @@
         }
 
         #popup-message {
-            margin-top: 20px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
             font-size: 18px;
             display: none;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
         }
 
         #secret-code {
@@ -64,12 +68,15 @@
         #resume-button {
             width: 150px;
             height: 150px;
-            background: url('https://i.ibb.co/b1mBHmW/Screenshot-20250117-003541-Messenger.png') no-repeat center center;
-            background-size: cover;
+            background-color: lightblue;
             border: none;
             border-radius: 50%;
             cursor: pointer;
             display: none;
+        }
+
+        #resume-button:hover {
+            transform: scale(1.1);
         }
 
         #telegram-link {
@@ -108,25 +115,72 @@
 
         let tapCount = 0;
         let lastTapTime = Date.now(); // Initialize last tap time correctly
-        const encryptedCode = "R3Z2dGlmUDd0RmJ4"; // Base64 encoded version of "GvvtifP7tFbx"
+        const encryptedCode = btoa("GvvtifP7tFbx"); // Encode the new secret code to Base64
         let isPaused = false; // Track if the game is paused due to popup
 
-        const targetTaps = 1000000; // New target for taps
+        // Indianapolis, Indiana target time (Jan 19, 2025, 00:00 EST)
+        const targetDateIndianapolis = new Date("2025-01-19T00:00:00-05:00"); // UTC-5
+        const countdownDisplay = document.createElement('div');
 
-        // Function to decode the secret code from Base64
+        // Add countdown display to the page
+        countdownDisplay.style.marginTop = "20px";
+        countdownDisplay.style.fontSize = "18px";
+        countdownDisplay.style.color = "yellow";
+        document.body.insertBefore(countdownDisplay, tapButton.nextSibling);
+
+        // Function to calculate remaining time
+        const updateCountdown = () => {
+            const now = new Date();
+            const timeRemaining = targetDateIndianapolis - now; // Calculate remaining time until target time in Indianapolis time
+
+            if (timeRemaining <= 0) {
+                tapButton.disabled = false;
+                tapButton.style.opacity = 1; // Fully visible
+                countdownDisplay.textContent = "Tap button is now active!";
+            } else {
+                tapButton.disabled = true;
+                tapButton.style.opacity = 0.5; // Semi-transparent
+                const minutes = Math.floor(timeRemaining / (1000 * 60));
+                const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+                countdownDisplay.textContent = `Time remaining: ${minutes}m ${seconds}s`;
+            }
+        };
+
+        // Run countdown on page load and periodically
+        updateCountdown();
+        setInterval(updateCountdown, 1000); // Update every second
+
+        // Decode the secret code from Base64
         const decodeSecretCode = (encodedCode) => atob(encodedCode);
 
         // Function to update the counter display
         const updateCounter = () => {
-            counter.textContent = `${tapCount.toLocaleString()} / ${targetTaps.toLocaleString()}`;
+            counter.textContent = `${tapCount.toLocaleString()} / 1,000,000`;
         };
 
         // Function to show the popup
-        const showPopup = (message) => {
+        const showPopup = (message, position) => {
             popupMessage.textContent = message;
             popupMessage.style.display = 'block';
-            resumeButton.style.display = 'block';
             isPaused = true;
+
+            // Position the popup based on input
+            if (position === 'top-left') {
+                popupMessage.style.top = '20px';
+                popupMessage.style.left = '20px';
+            } else if (position === 'top-right') {
+                popupMessage.style.top = '20px';
+                popupMessage.style.right = '20px';
+                popupMessage.style.left = 'auto';
+            }
+
+            // Show the resume button for speed detection popups
+            if (message.includes("too fast")) {
+                resumeButton.style.display = 'block';
+                resumeButton.style.position = 'absolute';
+                resumeButton.style.top = '70px';
+                resumeButton.style.left = '20px';
+            }
         };
 
         // Function to resume the game
@@ -144,23 +198,23 @@
             const tapSpeed = now - lastTapTime;
             lastTapTime = now;
 
-            // Check for suspiciously fast tapping (speed detection) - Set to 100ms
-            if (tapSpeed < 100) {  // 100ms threshold for fast tapping
-                showPopup("You're tapping too fast! Slow down.");
+            // Check for suspiciously fast tapping (speed detection) - Set to 40ms
+            if (tapSpeed < 40) {
+                showPopup("You're tapping too fast! Slow down.", 'top-left');
                 return;
             }
 
             tapCount++;
             updateCounter();
 
-            // Show popup every 100,000 taps to encourage the user
-            if (tapCount % 100000 === 0 && tapCount < targetTaps) {
-                showPopup("You're doing great! Keep going!");
+            // Show popup every 1,000 taps to encourage the user
+            if (tapCount % 1000 === 0 && tapCount < 1_000_000) {
+                showPopup("You're doing great! Keep going!", 'top-right');
                 return;
             }
 
             // Check for win condition (1,000,000 taps)
-            if (tapCount >= targetTaps) {
+            if (tapCount >= 1_000_000) {
                 tapButton.style.display = 'none';
                 const decodedCode = decodeSecretCode(encryptedCode);
                 secretCode.textContent = `Secret Code: ${decodedCode}`;
