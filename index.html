@@ -29,7 +29,8 @@
         #tap-button {
             width: 150px;
             height: 150px;
-            background: yellow; /* Yellow circle background */
+            background: url('https://i.ibb.co/NnPgLsJ/Moons.png') no-repeat center center;
+            background-size: cover;
             border: none;
             border-radius: 50%;
             cursor: pointer;
@@ -86,7 +87,7 @@
 
     <h1>Turtle Tap</h1>
     <button id="tap-button"></button>
-    <div id="counter">0 / 1,000,000</div> <!-- Updated goal -->
+    <div id="counter">0 / 2500</div>
     <div id="popup-message"></div>
     <div id="secret-code">Secret Code: </div>
 
@@ -107,7 +108,7 @@
         let lastTapTime = Date.now(); // Initialize last tap time correctly
         const encryptedCode = "ZTh0V2d6MkpvVk5Z"; // Base64 encoded version of "e8tWgz2JoVNY"
         let isPaused = false; // Track if the game is paused due to popup
-        const goal = 1000000; // Updated goal
+        const goal = 2500; // Tap count goal
 
         // Decode the secret code from Base64
         const decodeSecretCode = (encodedCode) => atob(encodedCode);
@@ -140,8 +141,8 @@
             const tapSpeed = now - lastTapTime;
             lastTapTime = now;
 
-            // Check for suspiciously fast tapping (speed detection) - Set to 100ms
-            if (tapSpeed < 100) {  // 100ms threshold for fast tapping
+            // Check for suspiciously fast tapping (speed detection) - Adjusted to 80ms
+            if (tapSpeed < 80) {  // Lowered threshold from 100ms to 80ms
                 showPopup("You're tapping too fast! Slow down.");
                 return;
             }
@@ -149,13 +150,13 @@
             tapCount++;
             updateCounter();
 
-            // Show popup every 50,000 taps to encourage the user
-            if (tapCount % 50000 === 0 && tapCount < goal) {
+            // Show popup every 500 taps to encourage the user
+            if (tapCount % 500 === 0 && tapCount < goal) {
                 showPopup("You're doing great! Keep going!");
                 return;
             }
 
-            // Check for win condition (1,000,000 taps)
+            // Check for win condition (2500 taps)
             if (tapCount >= goal) {
                 tapButton.style.display = 'none';
                 const decodedCode = decodeSecretCode(encryptedCode);
